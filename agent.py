@@ -12,6 +12,7 @@ from typing import TypedDict
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 from recommender_tool import RecommenderTool
+from sparql_tool import SPARQLTool
 from utils import get_index
 from IPython.display import Image
 
@@ -40,7 +41,9 @@ if not st.session_state.graph_initialized:
     # Tools einrichten
     search = DuckDuckGoSearchResults(max_results=5)
     recommender_tool = RecommenderTool(searcher)
-    tools = [search, recommender_tool]
+    sparql_tool = SPARQLTool()
+    #tools = [search, recommender_tool]
+    tools = [sparql_tool]
     # LLM einrichten
     llm = ChatOpenAI(model="gpt-4o-mini",
                      temperature=0.5,
@@ -84,12 +87,12 @@ def main():
     for message in st.session_state.messages:
         if message["role"] in ["user", "assistant"]:
             if message["role"] == "user":
-                with st.chat_message("user"):
-                # with st.chat_message("user", avatar="img/girl.png"):
+                # with st.chat_message("user"):
+                with st.chat_message("user", avatar="img/girl.png"):
                     st.markdown(message["content"])
             else:
-                with st.chat_message("assistant"):
-                # with st.chat_message("assistant", avatar="img/frankenstein.png"):
+                # with st.chat_message("assistant"):
+                with st.chat_message("assistant", avatar="img/frankenstein.png"):
                     st.markdown(message["content"])
 
     # Nutzerinput verarbeiten
@@ -111,7 +114,7 @@ def main():
 
             # Ergebnisse der Workflowverarbeitung ausgeben
             for result in results:
-                # print(result)
+                #print(result)
                 for node_name, node_output in result.items():
                     # Überprüfe, ob der aktuelle Workflowknoten ein Chatbot-Knoten ist
                     if node_name == "chatbot":

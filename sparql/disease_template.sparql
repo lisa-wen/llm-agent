@@ -1,0 +1,47 @@
+PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX mwapi: <https://www.mediawiki.org/ontology#API/>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?disease ?diseaseLabel ?diseaseDescription
+?subclassLabel
+?symptomLabel
+?specialtyLabel
+?therapyLabel
+# ?geneLabel ?anatomicLabel
+?image
+?wikipediaPage
+
+WHERE {
+
+ ?disease wdt:P31 wd:Q929833;
+          wdt:P279 ?subclass .
+ OPTIONAL { ?disease  wdt:P780 ?symptom . }
+ OPTIONAL { ?disease  wdt:P1995 ?specialty .}
+ OPTIONAL { ?disease  wdt:P2176  ?therapy . }
+ #OPTIONAL { ?disease  wdt:P2293  ?gene . }
+ #OPTIONAL { ?disease  wdt:P927  ?anatomic . }
+ OPTIONAL { ?disease wdt:P18 ?image. }
+ OPTIONAL {
+   ?wikipediaPage schema:about ?disease ;
+                   schema:inLanguage "en" .
+ }
+ {% if disease is not none %}
+ SERVICE wikibase:mwapi {
+        bd:serviceParam wikibase:endpoint "www.wikidata.org";
+        wikibase:api "EntitySearch";
+        mwapi:search "{{disease | lower}}";
+        mwapi:language "en";
+        mwapi:limit 1 .
+        ?disease wikibase:apiOutputItem mwapi:item.
+    }
+ {% endif %}
+
+ SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}

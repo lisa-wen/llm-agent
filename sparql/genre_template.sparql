@@ -1,0 +1,46 @@
+PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX mwapi: <https://www.mediawiki.org/ontology#API/>
+PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?series ?seriesLabel ?imdb_id WHERE {
+    ?series wdt:P31 wd:Q5398426;
+        wdt:P136 ?genre ;
+        wdt:P495 ?country ;
+        wdt:P345 ?imdb_id ;
+        p:P580 ?startTimeStatement .
+        ?startTimeStatement ps:P580 ?startTime .
+    {% if genre is not none %}
+    SERVICE wikibase:mwapi {
+        bd:serviceParam wikibase:endpoint "www.wikidata.org";
+        wikibase:api "EntitySearch";
+        mwapi:search "{{genre | lower}}";
+        mwapi:language "en";
+        mwapi:limit 5 .
+        ?genre wikibase:apiOutputItem mwapi:item.
+    }
+    {% endif %}
+    {% if country is not none %}
+    SERVICE wikibase:mwapi {
+        bd:serviceParam wikibase:endpoint "www.wikidata.org";
+        wikibase:api "EntitySearch";
+        mwapi:search "{{country | lower}}";
+        mwapi:language "en";
+        mwapi:limit 1 .
+        ?country wikibase:apiOutputItem mwapi:item.
+    }
+    {% endif %}
+    FILTER(?startTime >= "2010-01-01T00:00:00Z"^^xsd:dateTime)
+
+    SERVICE wikibase:label {
+        bd:serviceParam wikibase:language "en". }
+    }
+
+    ORDER BY DESC(?startTime) # Sort by most recent
+    LIMIT 20

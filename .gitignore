@@ -2,3 +2,4 @@
 /img/langgraph_diagram.png
 .venv
 .idea
+chroma_langchain_db

@@ -3,7 +3,7 @@ from typing import Annotated
 from langchain_core.messages import SystemMessage, AIMessage, RemoveMessage
 from langgraph.graph import StateGraph, START, END
 from langchain_community.tools import DuckDuckGoSearchResults
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 import os
 import openai
 from langgraph.graph.message import add_messages
@@ -11,10 +11,12 @@ from dotenv import load_dotenv
 from typing import TypedDict
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
+from faq import FaqTool
 from recommender_tool import RecommenderTool
 from sparql_tool import SPARQLTool
 from utils import get_index
 from IPython.display import Image
+from langchain_chroma import Chroma
 
 
 # Speichere Session-Nachrichten
@@ -42,8 +44,16 @@ if not st.session_state.graph_initialized:
     search = DuckDuckGoSearchResults(max_results=5)
     recommender_tool = RecommenderTool(searcher)
     sparql_tool = SPARQLTool()
-    #tools = [search, recommender_tool]
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    vectors_store = Chroma(
+        collection_name="example_collection",
+        embedding_function=embeddings,
+        persist_directory="./chroma_langchain_db"
+    )
+    faq_tool = FaqTool(vectors_store)
+    #tools = [search, recommender_tool, sparql_tool]
     tools = [sparql_tool]
+    #tools = [faq_tool]
     # LLM einrichten
     llm = ChatOpenAI(model="gpt-4o-mini",
                      temperature=0.5,

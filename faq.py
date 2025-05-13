@@ -1,3 +1,6 @@
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 from langchain.tools import BaseTool
 from langchain_chroma import Chroma
 from pydantic import BaseModel, Field

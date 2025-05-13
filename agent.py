@@ -52,8 +52,8 @@ if not st.session_state.graph_initialized:
     )
     faq_tool = FaqTool(vectors_store)
     #tools = [search, recommender_tool, sparql_tool]
-    tools = [sparql_tool]
-    #tools = [faq_tool]
+    #tools = [sparql_tool]
+    tools = [faq_tool]
     # LLM einrichten
     llm = ChatOpenAI(model="gpt-4o-mini",
                      temperature=0.5,
@@ -108,12 +108,12 @@ def main():
     # Nutzerinput verarbeiten
     if prompt := st.chat_input("Ask me anything"):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-        # with st.chat_message("user", avatar="img/girl.png"):
+        #with st.chat_message("user"):
+        with st.chat_message("user", avatar="img/girl.png"):
             st.markdown(prompt)
 
-        with st.chat_message("assistant"):
-        # with st.chat_message("assistant", avatar="img/frankenstein.png"):
+        #with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar="img/frankenstein.png"):
             user_messages = [message['content'] for message in st.session_state.messages if
                              message['role'] == 'user']
 
@@ -146,4 +146,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if "app_state" not in st.session_state:
+        st.session_state.app_state = "start"
+    if st.session_state.app_state == "start":
+        st.title("Willkommen zur App 🎉")
+        st.write("Das ist der Start-Bildschirm. Bitte klicken Sie, um fortzufahren.")
+        if st.button("Start"):
+            st.session_state.app_state = "main"
+            st.rerun()
+    elif st.session_state.app_state == "main":
+        main()

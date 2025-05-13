@@ -36,8 +36,9 @@ if 'graph_initialized' not in st.session_state:
 # Start-Initialisierung des Workflow-Graphen
 if not st.session_state.graph_initialized:
     # API-Key laden
-    load_dotenv()
-    openai.api_key = os.getenv('OPENAI_API_KEY')
+    #load_dotenv()
+    #openai.api_key = os.getenv('OPENAI_API_KEY')
+    openai.api_key = st.secrets["OPENAI_API_KEY"],
     # Suchindex erstellen
     searcher = get_index("index")
     # Tools einrichten

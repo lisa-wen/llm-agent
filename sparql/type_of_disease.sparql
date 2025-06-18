@@ -1,0 +1,26 @@
+PREFIX bd: <http://www.bigdata.com/rdf#>
+PREFIX mwapi: <https://www.mediawiki.org/ontology#API/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+
+SELECT ?type ?typeLabel
+WHERE {
+ ?disease wdt:P31 ?type
+
+ {% if disease is not none %}
+ SERVICE wikibase:mwapi {
+        bd:serviceParam wikibase:endpoint "www.wikidata.org";
+        wikibase:api "EntitySearch";
+        mwapi:search "{{disease | lower}}" }};
+        #mwapi:search "rubella" ;
+        mwapi:language "en";
+        mwapi:limit 1 .
+        ?disease wikibase:apiOutputItem mwapi:item.
+    }
+
+  SERVICE wikibase:label {
+        bd:serviceParam wikibase:language "en".
+    }
+}
